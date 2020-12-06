@@ -1,8 +1,8 @@
 const request = require('superagent');
 
-module.exports = ({dogRouter}) => {
+module.exports = ({router}) => {
   // getting the dogs route
-  dogRouter.get('/', async (ctx, next) => {
+  router.get('/raw', async (ctx, next) => {
     await request
       .get('https://dog.ceo/api/breeds/list/all')
       .then(res => {
@@ -13,7 +13,20 @@ module.exports = ({dogRouter}) => {
       });
   });
 
-  dogRouter.get('/:breed', async (ctx, next) => {
+  router.get('/', async ctx => {
+    await request
+      .get('https://dog.ceo/api/breeds/list/all')
+      .then(res => {
+        debugger
+        return ctx.render('dog-breeds', {breeds: res.body.message});
+        ctx.body = res.body;
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  });
+
+  router.get('/raw/:breed', async (ctx, next) => {
     await request.get(`https://dog.ceo/api/breed/${ctx.params.breed}/list`)
       .then(res => {
         ctx.body = res.body;

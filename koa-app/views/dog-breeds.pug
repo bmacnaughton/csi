@@ -1,0 +1,14 @@
+extends layout
+
+block layout-content
+  div.View
+    h1.Banner Dog breeds
+    div.Message
+      div.Title
+        h3 #{title}
+        ul
+          each val, key in breeds
+            if val.length
+              li= key + ' (' + val.join(', ') + ')'
+            else
+              li= key

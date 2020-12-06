@@ -3,7 +3,7 @@
 const shimmer = require('shimmer');
 
 const record = require('../recorder.js').record;
-const getStringCount = require('../string-counter');
+const getStringCounts = require('../string-counter');
 const debug = require('../debug.js');
 const log = {
   patch: debug.make('patch'),
@@ -32,7 +32,7 @@ function wrapApp (app) {
     return function () {
       const handle = callback.call(this);
       return function (req, res) {
-        const cc = {startTime: Date.now(), startStringObjectCount: getStringCount()};
+        const cc = {startTime: Date.now(), startCounts: getStringCounts()};
         log.koa('got request');
 
         // Create and enter koa transaction
@@ -55,11 +55,12 @@ function wrapEnd (cc, res) {
   }
   shimmer.wrap(res, 'end', realEnd => {
     return function () {
-      const sc = getStringCount();
+      const sc = getStringCounts();
       const data = {
         et: Date.now() - cc.startTime,
-        incrementalStringCount: sc - cc.startStringObjectCount,
-        totalStringCount: sc,
+        deltaStrCount: sc.strCalls - cc.startCounts.strCalls,
+        deltaObjCount: sc.objCalls - cc.startCounts.objCalls,
+        rawCounts: sc,
       };
       record(data)
         .then(unique => {

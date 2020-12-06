@@ -27,7 +27,7 @@ async function main () {
 
   const app = require('./app.js');
 
-  app.start({getCounts});
+  app.start({getCounts, port: options.port});
 
   return new Promise((resolve, reject) => {});
 }

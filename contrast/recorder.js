@@ -1,7 +1,9 @@
 const crypto = require('crypto');
 
+const request = require('superagent');
+
 let output = console.log;
-let endpoint;
+let endpoint = 'localhost:4000';
 let logFile;      // specification of file
 let file;         // currently open file.
 
@@ -14,7 +16,16 @@ module.exports = {
       output(JSON.stringify({contrast}));
     }
     if (endpoint) {
-      // handle send to endpoint
+      const res = await request
+        .post(endpoint)
+        .send({bruce: 'says', hi: 'to-you'})
+        .set('content-type', 'application/json')
+        .set('accept', 'application/json')
+        .then(res => {
+          console.log('got response', res);
+          return res;
+        })
+        .catch(e => e);
     }
     if (file) {
       // handle write to log file

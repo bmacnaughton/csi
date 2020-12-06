@@ -1,6 +1,9 @@
 module.exports = ({router, getCounts}) => {
-  // getting the home route
-  router.get('/', (ctx, next) => {
+  router.get('/', async ctx => {
     ctx.body = getCounts ? getCounts() : {};
   });
+  router.post('/', async ctx => {
+    console.log(ctx.request.body);
+    ctx.body = {status: 'OK'};
+  })
 };
