@@ -1,48 +1,45 @@
-const patcher = require('../patcher/patch-via-require.js');
-patcher.enable();
+const configuration = require('./configuration.js');
 
-const Koa = require('koa');
-const logger = require('koa-logger');
-const Router = require('koa-router');
-const app = new Koa();
-const debug = require('../util/debug');
+async function start (options = {}) {
 
-const getStringCount = require('../util/string-counter');
-const getCounts = function () {
-  const o = {stringCount: getStringCount()};
-  return Object.assign(o, patcher.getCounts());
+  const Koa = require('koa');
+  const logger = require('koa-logger');
+  const Router = require('koa-router');
+  const app = new Koa();
+
+  // log all events to the terminal
+  app.use(logger());
+
+  // error handling
+  app.use(async (ctx, next) => {
+    try {
+      await next();
+    } catch (err) {
+      ctx.status = err.status || 500;
+      ctx.body = err.message;
+      ctx.app.emit('error', err, ctx);
+    }
+  });
+
+  // instantiate our new Router
+  const router = new Router();
+  const dogRouter = new Router({
+    prefix: '/dogs'
+  });
+  // add actions
+  require('./routes/counters')({router, getCounts: options.getCounts});
+  require('./routes/dogs')({dogRouter});
+
+  // tells the router to use all the routes that are on the object
+  app.use(router.routes());
+  app.use(router.allowedMethods());
+
+  app.use(dogRouter.routes());
+  app.use(dogRouter.allowedMethods());
+
+  const server = app.listen(options.port || 3000);
 }
 
-// log all events to the terminal
-app.use(logger());
+module.exports = {start};
 
-// error handling
-app.use(async (ctx, next) => {
-  try {
-    await next();
-  } catch (err) {
-    ctx.status = err.status || 500;
-    ctx.body = err.message;
-    ctx.app.emit('error', err, ctx);
-  }
-});
 
-// instantiate our new Router
-const router = new Router();
-const dogRouter = new Router({
-  prefix: '/dogs'
-});
-// require our external routes and pass in the router
-require('./routes/counters')({router, getCounts});
-require('./routes/dogs')({dogRouter});
-
-// tells the router to use all the routes that are on the object
-app.use(router.routes());
-app.use(router.allowedMethods());
-
-app.use(dogRouter.routes());
-app.use(dogRouter.allowedMethods());
-
-// tell the server to listen to events on a specific port
-const server = app.listen(3000);
-module.exports = server;

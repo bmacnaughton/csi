@@ -4,7 +4,7 @@ const Module = require('module');
 const glob = require('glob');
 const path = require('path');
 
-const debug = require('../util/debug.js');
+const debug = require('./debug.js');
 const log = {
   patch: debug.make('patch')
 };

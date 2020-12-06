@@ -2,13 +2,14 @@
   "name": "contrast",
   "version": "1.0.0",
   "description": "",
-  "main": "patch-via-require.js",
+  "main": "koa-app/app.js",
   "dependencies": {
     "debug-custom": "^1.1.0",
     "glob": "^7.1.6",
     "koa": "^2.13.0",
     "koa-logger": "^3.2.1",
     "koa-router": "^10.0.0",
+    "minimist": "^1.2.5",
     "shimmer": "^1.2.1",
     "superagent": "^6.1.0"
   },

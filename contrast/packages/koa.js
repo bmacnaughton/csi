@@ -2,9 +2,9 @@
 
 const shimmer = require('shimmer');
 
-const record = require('../../recorder/recorder.js').record;
-const getStringCount = require('../../util/string-counter');
-const debug = require('../../util/debug.js');
+const record = require('../recorder.js').record;
+const getStringCount = require('../string-counter');
+const debug = require('../debug.js');
 const log = {
   patch: debug.make('patch'),
   koa: debug.make('koa'),
@@ -32,8 +32,8 @@ function wrapApp (app) {
     return function () {
       const handle = callback.call(this);
       return function (req, res) {
-        log.koa('got request');
         const cc = {startTime: Date.now(), startStringObjectCount: getStringCount()};
+        log.koa('got request');
 
         // Create and enter koa transaction
         log.koa('wrapping end()');
@@ -55,15 +55,31 @@ function wrapEnd (cc, res) {
   }
   shimmer.wrap(res, 'end', realEnd => {
     return function () {
-      const unique = record(
-        Date.now() - cc.startTime,
-        getStringCount() - cc.startStringObjectCount,
-      );
+      const sc = getStringCount();
+      const data = {
+        et: Date.now() - cc.startTime,
+        incrementalStringCount: sc - cc.startStringObjectCount,
+        totalStringCount: sc,
+      };
+      record(data)
+        .then(unique => {
+          if (unique) {
+            this.setHeader('x-contrast-id', unique);
+          }
+          return realEnd.apply(this, arguments);
+        });
 
-      if (unique) {
-        this.setHeader('contrast-id', unique);
-      }
-      return realEnd.apply(this, arguments);
+      // this could lead to some unexpected behavior because
+      // the state of the response may not be what it would
+      // normally be after really calling end(); the call to
+      // realEnd() will be delayed when record() sends to an
+      // endpoint or writes to a file. the only real alternatives
+      // are to have the send/write fire and forget or, if the user
+      // supplied a callback, then the callback could be wrapped and
+      // only invoked after record() completes. but in general
+      // this should work fine as the output stream may not have
+      // finished before end() returns.
+      return this;
     }
   })
 }
