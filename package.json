@@ -1,0 +1,22 @@
+{
+  "name": "contrast",
+  "version": "1.0.0",
+  "description": "",
+  "main": "patch-via-require.js",
+  "dependencies": {
+    "debug-custom": "^1.1.0",
+    "glob": "^7.1.6",
+    "koa": "^2.13.0",
+    "koa-logger": "^3.2.1",
+    "koa-router": "^10.0.0",
+    "shimmer": "^1.2.1",
+    "superagent": "^6.1.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
