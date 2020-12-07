@@ -15,22 +15,25 @@ module.exports = {
     if (output) {
       output(JSON.stringify({contrast}));
     }
+    const promises = [];
     if (endpoint) {
-      const res = await request
+      const res = request
         .post(endpoint)
         .send({bruce: 'says', hi: 'to-you'})
         .set('content-type', 'application/json')
         .set('accept', 'application/json')
         .then(res => {
-          console.log('got response', res);
           return res;
         })
         .catch(e => e);
+      promises.push(res);
     }
     if (file) {
       // handle write to log file
     }
-    return id;
+
+    // don't care if the writes fail; just return the id.
+    return Promise.all(promises).then(results => id);
   },
 
   // config control

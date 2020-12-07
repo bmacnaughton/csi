@@ -26,7 +26,8 @@ async function get (options = {}) {
   const configOptions = {
     port: {location: 'b', type: 'i', alias: 'p', default: 3000},
     beIp: {location: 'b', type: 's'},
-    contrastActive: {location: 'b', alias: 'contrast', type: 'b', default: true},
+    contrastEnabled: {location: 'b', alias: 'contrast', type: 'b', default: true},
+    verbose: {location: 'b', alias: 'v', type: 'b', default: false},
     commandLineOnly: {location: 'c', alias: 'clo', type: 'b', default: false},
   };
 
@@ -93,7 +94,7 @@ async function get (options = {}) {
 //===========================================================================
 // validators ===============================================================
 //===========================================================================
-async function validateList (option, arg) {
+async function validateList (option, arg) {  // eslint-disable-line no-unused-vars
   if (typeof arg !== 'string') {
     return new Error(`${option} requires a string argument`);
   }

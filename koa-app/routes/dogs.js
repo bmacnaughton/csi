@@ -17,7 +17,6 @@ module.exports = ({router}) => {
     await request
       .get('https://dog.ceo/api/breeds/list/all')
       .then(res => {
-        debugger
         return ctx.render('dog-breeds', {breeds: res.body.message});
         ctx.body = res.body;
       })

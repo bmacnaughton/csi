@@ -1,4 +1,10 @@
-const configuration = require('./configuration.js');
+//
+// implement the simple web app. it's really two in one - one displays
+// a list of dog breeds while the other accumulates metrics and displays
+// them on request.
+//
+
+const metrics = require('./metrics');
 
 async function start (options = {}) {
   const path = require('path');
@@ -9,12 +15,14 @@ async function start (options = {}) {
   const bodyParser = require('koa-bodyparser');
   const app = new Koa();
 
-  var Pug = require('koa-pug');
-  var pug = new Pug({
+  const Pug = require('koa-pug');
+  const pug = new Pug({
     viewPath: path.resolve(__dirname, 'views'),
     basedir: path.resolve(__dirname, 'views'),
-    app: app // bind ctx.render
   });
+
+  // could add {app: app} in new Pug() call
+  pug.use(app);
 
   // log all events to the terminal
   app.use(logger());
@@ -34,13 +42,19 @@ async function start (options = {}) {
   });
 
   // instantiate our new Router
-  const router = new Router();
-  const dogRouter = new Router({prefix: '/dogs'});
-  const vanillaRouter = new Router({prefix: '/vanilla'});
+  const router = new Router({prefix: '/csi'});
+  const dogRouter = new Router();
+  //const vanillaRouter = new Router({prefix: '/vanilla'});
+
   // add actions
-  require('./routes/counters')({router, getCounts: options.getCounts});
+  const counterOptions = {
+    router,
+    getCounts: options.getCounts,
+    accumulate: metrics.accumulate,
+  };
+  require('./routes/counters')(counterOptions);
   require('./routes/dogs')({router: dogRouter});
-  require('./routes/vanilla')({router: vanillaRouter});
+  //require('./routes/vanilla')({router: vanillaRouter});
 
   // use all the routes
   app.use(router.routes());
@@ -49,10 +63,12 @@ async function start (options = {}) {
   app.use(dogRouter.routes());
   app.use(dogRouter.allowedMethods());
 
-  app.use(vanillaRouter.routes());
-  app.use(vanillaRouter.allowedMethods());
+  //app.use(vanillaRouter.routes());
+  //app.use(vanillaRouter.allowedMethods());
 
-  const server = app.listen(options.port || 3000);
+  app.listen(options.port || 3000);
+
+  return app;
 }
 
 module.exports = {start};
