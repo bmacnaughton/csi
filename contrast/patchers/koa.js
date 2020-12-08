@@ -1,5 +1,3 @@
-'use strict'
-
 const shimmer = require('shimmer');
 
 const record = require('../recorder.js').record;
@@ -12,11 +10,9 @@ const log = {
 };
 
 module.exports = koa => {
-  // allow the caller to invoke this with or without "new" by
-  // not using an arrow function.
   return function (settings) {
     const app = new koa(settings);
-    log.info('think i am wrapping');
+    log.koa('wrapping app');
     wrapApp(app);
     return app;
   }

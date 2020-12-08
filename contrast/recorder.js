@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const request = require('superagent');
 
 let output = console.log;
-let endpoint = 'localhost:4000';
+let endpoint;
 let logFile;      // specification of file
 let file;         // currently open file.
 
@@ -19,7 +19,7 @@ module.exports = {
     if (endpoint) {
       const res = request
         .post(endpoint)
-        .send({bruce: 'says', hi: 'to-you'})
+        .send(data)
         .set('content-type', 'application/json')
         .set('accept', 'application/json')
         .then(res => {

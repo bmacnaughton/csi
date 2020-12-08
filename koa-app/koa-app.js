@@ -42,29 +42,29 @@ async function start (options = {}) {
   });
 
   // instantiate our new Router
-  const router = new Router({prefix: '/csi'});
-  const dogRouter = new Router();
-  //const vanillaRouter = new Router({prefix: '/vanilla'});
+  const metricsRouter = new Router({prefix: '/csi'});
+  const dogRouter = new Router({prefix: '/dogs'});
+  const homeRouter = new Router();
 
   // add actions
   const counterOptions = {
-    router,
+    router: metricsRouter,
     getCounts: options.getCounts,
-    accumulate: metrics.accumulate,
+    report: metrics.report,
   };
   require('./routes/counters')(counterOptions);
   require('./routes/dogs')({router: dogRouter});
-  //require('./routes/vanilla')({router: vanillaRouter});
+  require('./routes/home')({router: homeRouter});
 
   // use all the routes
-  app.use(router.routes());
-  app.use(router.allowedMethods());
+  app.use(metricsRouter.routes());
+  app.use(metricsRouter.allowedMethods());
 
   app.use(dogRouter.routes());
   app.use(dogRouter.allowedMethods());
 
-  //app.use(vanillaRouter.routes());
-  //app.use(vanillaRouter.allowedMethods());
+  app.use(homeRouter.routes());
+  app.use(homeRouter.allowedMethods());
 
   app.listen(options.port || 3000);
 

@@ -1,4 +1,10 @@
+//
+// get the configuration, issue messages if needed,
+// configure appropriately and kick off the server.
+//
 const configuration = require('./configuration.js');
+
+const {setOptions} = require('../contrast/recorder');
 
 async function main () {
 
@@ -19,7 +25,7 @@ async function main () {
   ['fatals', 'errors'].forEach(type => {
     if (config[type] && config[type].length) {
       // eslint-disable-next-line no-console
-      console.log(`${type}: ${config[type].join(', ')}`);
+      console.error(`${type}: ${config[type].join(', ')}`);
       errorCount += config[type].length;
     }
   });
@@ -30,7 +36,7 @@ async function main () {
   ['warnings', 'unknowns'].forEach(type => {
     if (config[type] && config[type].length) {
       // eslint-disable-next-line no-console
-      console.log(`${type}: ${config[type].join(', ')}`);
+      console.warn(`${type}: ${config[type].join(', ')}`);
     }
   });
 
@@ -55,12 +61,20 @@ async function main () {
   } else {
     getCounts = function () {
       const o = {};
+      return o;
     }
     // eslint-disable-next-line no-console
     log = console.log;
   }
 
-  const koaapp = require('./app.js');
+  const {beIp, logFile} = options;
+
+  await setOptions({endpoint: beIp, logToFile: logFile})
+
+  //
+  // get and start the app
+  //
+  const koaapp = require('./koa-app.js');
 
   // eslint-disable-next-line no-unused-vars
   const server = await koaapp.start({getCounts, port: options.port, log});

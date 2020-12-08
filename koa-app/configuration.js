@@ -26,6 +26,7 @@ async function get (options = {}) {
   const configOptions = {
     port: {location: 'b', type: 'i', alias: 'p', default: 3000},
     beIp: {location: 'b', type: 's'},
+    logFile: {location: 'b', type: 's'},
     contrastEnabled: {location: 'b', alias: 'contrast', type: 'b', default: true},
     verbose: {location: 'b', alias: 'v', type: 'b', default: false},
     commandLineOnly: {location: 'c', alias: 'clo', type: 'b', default: false},
