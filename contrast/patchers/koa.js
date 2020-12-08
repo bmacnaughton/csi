@@ -58,6 +58,7 @@ function wrapEnd (cc, res) {
         deltaObjCount: sc.objCalls - cc.startCounts.objCalls,
         rawCounts: sc,
       };
+      log.koa('calling record()')
       record(data)
         .then(unique => {
           if (unique) {

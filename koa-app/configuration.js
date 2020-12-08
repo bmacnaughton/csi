@@ -29,6 +29,7 @@ async function get (options = {}) {
     logFile: {location: 'b', type: 's'},
     contrastEnabled: {location: 'b', alias: 'contrast', type: 'b', default: true},
     verbose: {location: 'b', alias: 'v', type: 'b', default: false},
+    logItems: {location: 'e', type: 's', ignore: true},
     commandLineOnly: {location: 'c', alias: 'clo', type: 'b', default: false},
   };
 

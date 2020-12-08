@@ -6,7 +6,7 @@
 // get - fetch metrics for a specific ID
 //
 module.exports = {
-  accumulate () {},
+  report (data) {console.log(data)},
   getSummary () {},
   get (id) {},
 }

@@ -51,10 +51,21 @@ async function start (options = {}) {
     router: metricsRouter,
     getCounts: options.getCounts,
     report: metrics.report,
+    log: options.log || function () {},
   };
   require('./routes/counters')(counterOptions);
-  require('./routes/dogs')({router: dogRouter});
-  require('./routes/home')({router: homeRouter});
+
+  const dogOptions = {
+    router: dogRouter,
+    log: options.log || function () {},
+  }
+  require('./routes/dogs')(dogOptions);
+
+  const homeOptions = {
+    router: homeRouter,
+    log: options.log || function () {},
+  }
+  require('./routes/home')(homeOptions);
 
   // use all the routes
   app.use(metricsRouter.routes());
@@ -66,7 +77,7 @@ async function start (options = {}) {
   app.use(homeRouter.routes());
   app.use(homeRouter.allowedMethods());
 
-  app.listen(options.port || 3000);
+  app.listen(options.port);
 
   return app;
 }

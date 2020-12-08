@@ -4,7 +4,7 @@
 //
 const configuration = require('./configuration.js');
 
-const {setOptions} = require('../contrast/recorder');
+const recorder = require('../contrast/recorder');
 
 async function main () {
 
@@ -47,9 +47,13 @@ async function main () {
     }
   }
 
+  //
+  // status updates are out of the way, start the program.
+  //
+
   let getCounts;
   let log;
-  if (options.contrastActive) {
+  if (options.contrastEnabled) {
     const {patcher, getStringCounts, loggers} = require('../contrast/contrast.js');
     patcher.enable();
 
@@ -67,9 +71,10 @@ async function main () {
     log = console.log;
   }
 
+  // set where the metrics are recorded so they'll be ready when
+  // the app is started.
   const {beIp, logFile} = options;
-
-  await setOptions({endpoint: beIp, logToFile: logFile})
+  await recorder.setOptions({endpoint: beIp, logToFile: logFile});
 
   //
   // get and start the app
