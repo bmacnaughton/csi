@@ -63,7 +63,7 @@ exports = module.exports = {
   //
   getCounts () {
     const o = {errors: counts.errors.size};
-    ['builtin', 'installed'].forEach(type => {
+    ['builtin', 'installed', 'relative'].forEach(type => {
       o[type] = {
         patched: counts[type].patched.size,
         unpatched: counts[type].unpatched.size,
@@ -128,6 +128,8 @@ function requireAndPatch (name) {
 
     log.patch(`patched ${name}`);
     add(counters.patched, name);
+  } else {
+    add(counters.unpatched, name);
   }
 
   return mod;
