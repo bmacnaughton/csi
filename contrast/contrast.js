@@ -1,5 +1,6 @@
 
 const patcher = require('./patch-via-require');
+const recorder = require('./recorder');
 const getStringCounts = require('./string-counter');
 const debug = require('./debug');
 
@@ -12,6 +13,7 @@ const log = {
 
 module.exports = {
   patcher,
+  recorder,
   getStringCounts,
   log,
 };

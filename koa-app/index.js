@@ -4,8 +4,6 @@
 //
 const configuration = require('./configuration.js');
 
-const recorder = require('../contrast/recorder');
-
 async function main () {
 
   const config = await configuration.get();
@@ -54,14 +52,19 @@ async function main () {
   let getCounts;
   let log;
   if (options.contrastEnabled) {
-    const {patcher, getStringCounts, loggers} = require('../contrast/contrast.js');
-    patcher.enable();
-
+    const csi = require('../contrast/contrast');
+    //const {patcher, recorder, getStringCounts, loggers} = require('../contrast/contrast.js');
+    csi.patcher.enable();
     getCounts = function () {
-      const o = {stringCount: getStringCounts()};
-      return Object.assign(o, patcher.getCounts());
+      const o = {stringCount: csi.getStringCounts()};
+      return Object.assign(o, csi.patcher.getCounts());
     }
-    log = loggers;
+    log = csi.log;
+
+    // set where the metrics are recorded so they'll be ready when
+    // the app is started.
+    const {beIp, logFile} = options;
+    await csi.recorder.setOptions({endpoint: beIp, logToFile: logFile});
   } else {
     getCounts = function () {
       const o = {};
@@ -71,17 +74,13 @@ async function main () {
     log = console.log;
   }
 
-  // set where the metrics are recorded so they'll be ready when
-  // the app is started.
-  const {beIp, logFile} = options;
-  await recorder.setOptions({endpoint: beIp, logToFile: logFile});
-
   //
   // get and start the app
   //
   const koaapp = require('./koa-app.js');
 
   // eslint-disable-next-line no-unused-vars
+  log.info(`starting app on localhost:${options.port}`);
   const server = await koaapp.start({getCounts, port: options.port, log});
 
   server.context.server = server;
