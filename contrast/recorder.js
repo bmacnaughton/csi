@@ -11,8 +11,8 @@ module.exports = {
   async record (metrics) {
     // url safe base 64
     const id = crypto.randomBytes(30).toString('base64')
-      .replace(/\-/g, '+')
-      .replace(/_/g, '/');
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_');
     const data = {id, metrics};
     if (output) {
       output(JSON.stringify(data));

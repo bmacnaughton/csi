@@ -18,7 +18,6 @@ module.exports = ({router}) => {
       .get('https://dog.ceo/api/breeds/list/all')
       .then(res => {
         return ctx.render('dog-breeds', {breeds: res.body.message});
-        ctx.body = res.body;
       })
       .catch(err => {
         console.log(err);

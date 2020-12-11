@@ -17,6 +17,39 @@ module.exports = {
     db.set(data.id, data.metrics);
   },
   getSummary () {
+    if (!db.size) {
+      return {};
+    }
+    const o = {
+      minMs: Infinity,
+      maxMs: 0,
+      minStrCalls: Infinity,
+      maxStrCalls: 0,
+      averageMs: 0,
+      averageStrCalls: 0,
+    };
+    let n = 0;
+    let totMs = 0;
+    let totStrCalls = 0;
+    for (const i of db.values()) {
+      if (i.et < o.minMs) o.minMs = i.et;
+      if (i.et > o.maxMs) o.maxMs = i.et;
+
+      const tot = i.deltaCounts.strCalls + i.deltaCounts.objCalls;
+      if (tot < o.minStrCalls) o.minStrCalls = tot;
+      if (tot > o.maxStrCalls) o.maxStrCalls = tot;
+
+      n += 1;
+      totMs += i.et;
+      totStrCalls += tot;
+    }
+
+    o.averageMs = totMs / n;
+    o.averageStrCalls = totStrCalls / n;
+
+    return o;
+  },
+  getAll () {
     const o = {};
     for (const [k, i] of db) {
       o[k] = i;
@@ -24,7 +57,6 @@ module.exports = {
     return o;
   },
   get (id) {
-    console.log('ID', id);
     if (!db.has(id)) {
       const e = new Error('id not found');
       e.status = 404;

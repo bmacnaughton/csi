@@ -5,8 +5,11 @@ module.exports = ({router, metrics}) => {
   router.get('/id/:id', async ctx => {
     ctx.body = metrics.get(ctx.params.id);
   });
+  router.get('/all', async ctx => {
+    return ctx.render('metrics/all', {metrics: metrics.getAll()});
+  })
   router.get('/summary', async ctx => {
-    ctx.body = metrics.getSummary();
+    return ctx.render('metrics/summary', {summary: metrics.getSummary()});
   })
   router.post('/', async ctx => {
     await metrics.report(ctx.request.body);
