@@ -70,8 +70,19 @@ async function main () {
       const o = {};
       return o;
     }
-    // eslint-disable-next-line no-console
-    log = console.log;
+    log = new Proxy ({}, {
+      get (obj, prop) {
+        /* eslint-disable no-console */
+        if (prop === 'error') {
+          return console.error;
+        } else if (prop === 'warn') {
+          return console.warn;
+        } else {
+          return console.log;
+        }
+        /* eslint-enable no-console */
+      }
+    });
   }
 
   //

@@ -52,11 +52,14 @@ function wrapEnd (cc, res) {
   shimmer.wrap(res, 'end', realEnd => {
     return function () {
       const sc = getStringCounts();
+      const deltaCounts = {
+        strCalls: sc.strCalls - cc.startCounts.strCalls,
+        objCalls: sc.objCalls - cc.startCounts.objCalls,
+      }
       const data = {
         et: Date.now() - cc.startTime,
-        deltaStrCount: sc.strCalls - cc.startCounts.strCalls,
-        deltaObjCount: sc.objCalls - cc.startCounts.objCalls,
         rawCounts: sc,
+        deltaCounts,
       };
       log.koa('calling record()')
       record(data)

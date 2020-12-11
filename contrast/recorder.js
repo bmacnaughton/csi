@@ -8,12 +8,14 @@ let logFile;      // specification of file
 let file;         // currently open file.
 
 module.exports = {
-  async record (data) {
-    const id = crypto.randomBytes(30).toString('base64');
-    delete data.id;
-    const contrast = Object.assign({id}, data);
+  async record (metrics) {
+    // url safe base 64
+    const id = crypto.randomBytes(30).toString('base64')
+      .replace(/\-/g, '+')
+      .replace(/_/g, '/');
+    const data = {id, metrics};
     if (output) {
-      output(JSON.stringify({contrast}));
+      output(JSON.stringify(data));
     }
     const promises = [];
     if (endpoint) {

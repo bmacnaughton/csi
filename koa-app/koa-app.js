@@ -49,11 +49,10 @@ async function start (options = {}) {
   // add actions
   const counterOptions = {
     router: metricsRouter,
-    getCounts: options.getCounts,
-    report: metrics.report,
+    metrics,
     log: options.log || function () {},
   };
-  require('./routes/counters')(counterOptions);
+  require('./routes/metrics')(counterOptions);
 
   const dogOptions = {
     router: dogRouter,
