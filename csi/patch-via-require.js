@@ -25,7 +25,7 @@ const counts = {
     unpatched: new Map(),
   },
   errors: new Map(),
-}
+};
 
 // wrap the native require function to count unpatched modules loaded.
 const nativeRequire = module.constructor.prototype.require;
@@ -71,6 +71,7 @@ exports = module.exports = {
         unpatchedItems: [...counts[type].unpatched.entries()],
       };
     });
+
     return o;
   }
 }
@@ -82,6 +83,7 @@ function add (map, name, n = 1) {
   } else {
     map.set(name, m + 1);
   }
+  counts.seq += 1;
 }
 
 //

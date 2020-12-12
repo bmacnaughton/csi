@@ -2,10 +2,9 @@ const crypto = require('crypto');
 
 const request = require('superagent');
 
-let output = console.log;
+let output;
 let endpoint;
-let logFile;      // specification of file
-let file;         // currently open file.
+let file;         // currently open log file or null.
 
 module.exports = {
   async record (metrics) {
@@ -31,7 +30,7 @@ module.exports = {
       promises.push(res);
     }
     if (file) {
-      // handle write to log file
+      file.write(`${new Date().toISOString()} ${JSON.stringify(data)}\n`);
     }
 
     // don't care if the writes fail; just return the id.
@@ -47,8 +46,16 @@ module.exports = {
       endpoint = options.endpoint;
     }
     if ('logFile' in options) {
+      const fs = require('fs');
       // handle log file open/close, etc.
-      logFile = options.logFile;
+      if (file) {
+        file.close()
+        fs.closeSync(file);
+      }
+      // allow falsey to just close existing file.
+      if (options.logFile) {
+        file = fs.createWriteStream(options.logFile);
+      }
     }
   }
 

@@ -1,7 +1,6 @@
 const shimmer = require('shimmer');
 
-const record = require('../recorder.js').record;
-const getStringCounts = require('../string-counter');
+const {recorder, getMetrics} = require('../csi');
 const debug = require('../debug.js');
 const log = {
   patch: debug.make('patch'),
@@ -28,12 +27,12 @@ function wrapApp (app) {
     return function () {
       const handle = callback.call(this);
       return function (req, res) {
-        const cc = {startTime: Date.now(), startCounts: getStringCounts()};
+        const startMetrics = getMetrics();
         log.koa('got request');
 
         // Create and enter koa transaction
         log.koa('wrapping end()');
-        wrapEnd(cc, res);
+        wrapEnd(startMetrics, res);
 
         // Run real handler
         log.koa('executing handler');
@@ -44,28 +43,20 @@ function wrapApp (app) {
 }
 
 // Exit koa span and response write
-function wrapEnd (cc, res) {
+function wrapEnd (startMetrics, res) {
   if (!res.end) {
     log.patch('koa missing res.end()');
     return;
   }
   shimmer.wrap(res, 'end', realEnd => {
     return function () {
-      const sc = getStringCounts();
-      const deltaCounts = {
-        strCalls: sc.strCalls - cc.startCounts.strCalls,
-        objCalls: sc.objCalls - cc.startCounts.objCalls,
-      }
-      const data = {
-        et: Date.now() - cc.startTime,
-        rawCounts: sc,
-        deltaCounts,
-      };
-      log.koa('calling record()')
-      record(data)
+      const endMetrics = getMetrics(startMetrics);
+
+      log.koa('calling recorder.record()')
+      recorder.record(endMetrics)
         .then(unique => {
           if (unique) {
-            this.setHeader('x-contrast-id', unique);
+            this.setHeader('x-csi-id', unique);
           }
           return realEnd.apply(this, arguments);
         });

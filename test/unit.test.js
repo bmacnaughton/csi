@@ -1,5 +1,6 @@
 const expect = require('chai').expect;
-const {patcher, getStringCounts} = require('../contrast/contrast.js');
+const {patcher} = require('../csi/csi');
+const getStringCounts = require('../csi/string-counter');
 
 describe('unit tests', function () {
 

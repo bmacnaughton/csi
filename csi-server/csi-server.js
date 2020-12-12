@@ -1,6 +1,10 @@
 //
-// implement the simple web app. it displays dog breeds.
+// implement the simple web app. it's really two in one - one displays
+// a list of dog breeds while the other accumulates metrics and displays
+// them on request.
 //
+
+const metrics = require('./metrics');
 
 async function start (options = {}) {
   const path = require('path');
@@ -26,7 +30,7 @@ async function start (options = {}) {
   // parse the body
   app.use(bodyParser());
 
-  // error handling
+  // use status if exception has the property
   app.use(async (ctx, next) => {
     try {
       await next();
@@ -37,29 +41,29 @@ async function start (options = {}) {
     }
   });
 
-  // instantiate our new Router
-  const dogRouter = new Router({prefix: '/dogs'});
-  const homeRouter = new Router();
 
-  const dogOptions = {
-    router: dogRouter,
+  const indexRouter = new Router();
+  // add actions
+  const indexOptions = {
+    router: indexRouter,
+    metrics,
+    log: options.log || function () {},
+  };
+  require('./routes/index')(indexOptions);
+  app.use(indexRouter.routes());
+  app.use(indexRouter.allowedMethods());
+
+  const apiRouter = new Router({prefix: '/api'});
+  const apiOptions = {
+    router: apiRouter,
+    metrics,
     log: options.log || function () {},
   }
-  require('./routes/dogs')(dogOptions);
+  require('./routes/api')(apiOptions);
+  app.use(apiRouter.routes());
+  app.use(apiRouter.allowedMethods());
 
-  const homeOptions = {
-    router: homeRouter,
-    log: options.log || function () {},
-  }
-  require('./routes/home')(homeOptions);
-
-  // use all the routes
-  app.use(dogRouter.routes());
-  app.use(dogRouter.allowedMethods());
-
-  app.use(homeRouter.routes());
-  app.use(homeRouter.allowedMethods());
-
+  // start the app
   app.listen(options.port);
 
   return app;

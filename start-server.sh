@@ -26,7 +26,7 @@ case $server in
 
     if [ -z "$pretend" ]; then
       echo "starting backend at localhost:${csi_port}"
-      CSI_PORT=$csi_port CSI_CONTRAST_ACTIVE=false node index.js
+      CSI_PORT=$csi_port CSI_ACTIVE=false node index.js
     else
       echo "pretending to start backend at localhost:${csi_port}"
     fi
