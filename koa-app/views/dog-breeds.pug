@@ -8,7 +8,9 @@ block layout-content
         h3 #{title}
         ul
           each val, key in breeds
-            if val.length
-              li= key + ' (' + val.join(', ') + ')'
-            else
-              li= key
+            li
+              a(href='/dogs/raw/' + key) #{key + ' (' + val.join(', ') + ')'}
+                //if val.length
+                //  li= key + ' (' + val.join(', ') + ')'
+                //else
+                //  li= key

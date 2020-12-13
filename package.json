@@ -4,6 +4,7 @@
   "description": "",
   "main": "koa-app/app.js",
   "dependencies": {
+    "ace-context": "^1.0.1",
     "debug-custom": "^1.1.0",
     "glob": "^7.1.6",
     "koa": "^2.13.0",

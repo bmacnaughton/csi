@@ -1,7 +1,12 @@
+//
+// this is the main csi module. it aggregates the csi components.
+//
+const ace = require('ace-context');
 
 const patcher = require('./patch-via-require');
 const recorder = require('./recorder');
-const getStringCounts = require('./string-counter');
+const StringCounter = require('./string-counter');
+// /const {setStringToCounted, getStringCounts} = require('./string-counter');
 const debug = require('./debug');
 
 const log = {
@@ -11,13 +16,26 @@ const log = {
   debug: debug.make('debug'),
 };
 
+// create context for async chaining.
+const context = ace.createNamespace('csi-context');
+// and initialize context dependent counters
+context.init = function () {
+  context.set(StringCounter.contextName, StringCounter.initialContext());
+}
+
+// make the context-aware string counter.
+const sc = new StringCounter({context, log});
+
 class Metrics {
   constructor () {
     this.startTime = Date.now();
-    this.strings = getStringCounts();
+    this.strings = sc.getStringCounts();
     this.requires = patcher.getCounts();
   }
 }
+
+// start counting strings
+sc.setStringToCounted();
 
 Metrics.getMetrics = function (startMetrics) {
   if (!startMetrics) {
@@ -60,7 +78,9 @@ Metrics.getMetrics = function (startMetrics) {
 
 module.exports = {
   patcher,
+  context,
   recorder,
   getMetrics: Metrics.getMetrics,
+  resetString: StringCounter.resetString,
   log,
 };

@@ -4,7 +4,7 @@
 // them on request.
 //
 
-const metrics = require('./metrics');
+const metrics = require('./metrics-store');
 
 async function start (options = {}) {
   const path = require('path');

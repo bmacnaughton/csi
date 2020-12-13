@@ -129,9 +129,10 @@ function requireAndPatch (name) {
     }
 
     log.patch(`patched ${name}`);
-    add(counters.patched, name);
+    add(counters.patched, path);
   } else {
-    add(counters.unpatched, name);
+    const path = Module._resolveFilename(name, this);
+    add(counters.unpatched, path);
   }
 
   return mod;

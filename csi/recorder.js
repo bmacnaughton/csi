@@ -1,3 +1,7 @@
+//
+// record metrics to configured destinations: console, http endpoint, file.
+//
+
 const crypto = require('crypto');
 
 const request = require('superagent');
@@ -7,6 +11,9 @@ let endpoint;
 let file;         // currently open log file or null.
 
 module.exports = {
+  //
+  // record metrics to configured destinations
+  //
   async record (metrics) {
     // url safe base 64
     const id = crypto.randomBytes(30).toString('base64')
@@ -37,7 +44,9 @@ module.exports = {
     return Promise.all(promises).then(results => id);
   },
 
-  // config control
+  //
+  // configure destinations for recording
+  //
   setOptions (options) {
     if ('output' in options) {
       output = options.output;
@@ -46,14 +55,13 @@ module.exports = {
       endpoint = options.endpoint;
     }
     if ('logFile' in options) {
-      const fs = require('fs');
-      // handle log file open/close, etc.
+      // allow falsey logFile to just close existing file.
       if (file) {
         file.close()
-        fs.closeSync(file);
       }
-      // allow falsey to just close existing file.
+      // but if not falsey open a new file.
       if (options.logFile) {
+        const fs = require('fs');
         file = fs.createWriteStream(options.logFile);
       }
     }

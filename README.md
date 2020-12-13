@@ -14,13 +14,6 @@ app and instrumentation startup now.
 
 ## organization
 
-- koa-app/ - dual purpose (app + backend metrics collector)
-  - routes/ - route-specific logic
-  - views/ - pug templates
-  - configuration.js - handles env vars and command line options
-  - index.js - startup code interprets options and starts application (could be csi main).
-  - koa-app - koa-specific startup
-  - metrics - the backend server portion of the app
 - csi/ - the csi package that would be installed by the user
   - patchers/ - module-patching modules
   - csi.js - main module, aggregates csi components
@@ -28,9 +21,29 @@ app and instrumentation startup now.
   - patch-via-require.js - replaces default require mechanism and patches instrumented modules
   - recorder.js - outputs metrics to destinations
   - string-counter.js - replaces String with counted version
+
+- csi-server/ - the metrics collection server
+  - routes/ - route handlers
+  - views/ - pug templates
+  - configuration.js - handles env vars and command line options
+  - csi-server.js - server-specific startup
+  - index.js - startup code
+  - loggers.js - debug/informational loggers
+  - metrics.js - in memory metrics "db"
+
+- koa-app/ - dog breed app
+  - routes/ - route-specific logic
+  - views/ - pug templates
+  - configuration.js - handles env vars and command line options
+  - index.js - startup code interprets options and starts application (could be csi main).
+  - koa-app - koa-specific startup
+  - metrics - the backend server portion of the app
+
 - test/ - unit tests
 - start-server.sh - script to facilitate starting a demo
 
 ## how it works
+
+
 
 ## api

@@ -1,6 +1,10 @@
+//
+// patch the koa object to capture metrics
+//
+
 const shimmer = require('shimmer');
 
-const {recorder, getMetrics} = require('../csi');
+const {context, recorder, getMetrics} = require('../csi');
 const debug = require('../debug.js');
 const log = {
   patch: debug.make('patch'),
@@ -27,26 +31,34 @@ function wrapApp (app) {
     return function () {
       const handle = callback.call(this);
       return function (req, res) {
-        const startMetrics = getMetrics();
-        log.koa('got request');
+        log.koa('contextualizing request');
+        // create a context, wrap end(), bind the emitters,
+        // and invoke the user's koa handler
+        context.run(() => {
+          context.init();
+          const startMetrics = getMetrics();
+          if (wrapEnd(startMetrics, res)) {
+            res.end = context.bind(res.end);
+          }
 
-        // Create and enter koa transaction
-        log.koa('wrapping end()');
-        wrapEnd(startMetrics, res);
+          context.bindEmitter(req);
+          context.bindEmitter(res);
 
-        // Run real handler
-        log.koa('executing handler');
-        return handle.call(this, req, res);
+          // Run real handler
+          log.koa('executing handler');
+          return handle.call(this, req, res);
+        }, {newContext: true});
+
       }
     }
   })
 }
 
-// Exit koa span and response write
+// on response.end() exit
 function wrapEnd (startMetrics, res) {
-  if (!res.end) {
+  if (!res.end || typeof res.end !== 'function') {
     log.patch('koa missing res.end()');
-    return;
+    return false;
   }
   shimmer.wrap(res, 'end', realEnd => {
     return function () {
@@ -72,6 +84,7 @@ function wrapEnd (startMetrics, res) {
       // this should work fine as the output stream may not have
       // finished before end() returns.
       return this;
-    }
-  })
+    };
+  });
+  return true;
 }

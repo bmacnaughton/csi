@@ -22,6 +22,7 @@ module.exports = {
     }
     // return object
     const o = {
+      n: 0,
       minMs: Infinity,
       maxMs: 0,
       minStrCalls: Infinity,
@@ -88,6 +89,7 @@ module.exports = {
       totStrCalls += tot;
     }
 
+    o.n = n;
     o.averageMs = totMs / n;
     o.averageStrCalls = totStrCalls / n;
 

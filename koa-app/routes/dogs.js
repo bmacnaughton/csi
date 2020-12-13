@@ -9,7 +9,7 @@ module.exports = ({router}) => {
         ctx.body = res.body;
       })
       .catch(err => {
-        console.log(err);
+        ctx.body = {error: err.message};
       });
   });
 
@@ -20,7 +20,7 @@ module.exports = ({router}) => {
         return ctx.render('dog-breeds', {breeds: res.body.message});
       })
       .catch(err => {
-        console.log(err);
+        ctx.body = {error: err.message};
       });
   });
 
@@ -28,6 +28,9 @@ module.exports = ({router}) => {
     await request.get(`https://dog.ceo/api/breed/${ctx.params.breed}/list`)
       .then(res => {
         ctx.body = res.body;
+      })
+      .catch(err => {
+        ctx.body = {error: err.message};
       })
   });
 };
