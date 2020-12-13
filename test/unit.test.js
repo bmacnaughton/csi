@@ -1,8 +1,10 @@
 const expect = require('chai').expect;
 
-const {patcher, context, getMetrics, resetString} = require('../csi/csi');
+const {patcher, context, getMetrics, resetString, clearIntervalSender} = require('../csi/csi');
 
 describe('unit tests', function () {
+  // don't let test hang for interval timer.
+  after(clearIntervalSender);
 
   describe('string objects metrics basics', function () {
     it('should count new string objects correctly', function () {

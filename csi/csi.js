@@ -33,7 +33,7 @@ sc.setStringToCounted();
 // can be large so don't send the detailed information on every request - required
 // files are not request-specific in most situations.
 let lastSeq = -1;
-const iid = setInterval(sendRequires, 10 * 1000);  // eslint-disable-line no-unused-vars
+let iid = setInterval(sendRequires, 10 * 1000);
 
 function sendRequires () {
   const requires = patcher.getCounts();
@@ -44,6 +44,11 @@ function sendRequires () {
       .then(() => lastSeq = requires.seq)
       .catch(e => log.error(e.message));
   }
+}
+
+function clearIntervalSender () {
+  clearInterval(iid);
+  iid = undefined;
 }
 
 //
@@ -106,4 +111,5 @@ module.exports = {
   getMetrics: Metrics.getMetrics,
   resetString: StringCounter.resetString,
   log,
+  clearIntervalSender,
 };
