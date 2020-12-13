@@ -25,6 +25,7 @@ const counts = {
     unpatched: new Map(),
   },
   errors: new Map(),
+  seq:0,
 };
 
 // wrap the native require function to count unpatched modules loaded.
@@ -106,16 +107,19 @@ function requireAndPatch (name) {
     counters = counts.installed;
   }
 
-  // if no patcher for the package just count it.
+  // if no patcher for the package just count it. don't
+  // use the pat
   if (!patchers.get(name)) {
     add(counters.unpatched, name);
     return mod;
   }
 
+  // store path, not name, for files that have a patcher.
+  const path = Module._resolveFilename(name, this);
+
   // Only apply patchers on first require
   if (!patched.get(mod)) {
     const options = {name};
-    const path = Module._resolveFilename(name, this);
 
     // require the patcher with the real module as the first argument.
     mod = nativeRequire(patchers.get(name).path)(mod, options);
@@ -131,7 +135,6 @@ function requireAndPatch (name) {
     log.patch(`patched ${name}`);
     add(counters.patched, path);
   } else {
-    const path = Module._resolveFilename(name, this);
     add(counters.unpatched, path);
   }
 
