@@ -1,4 +1,4 @@
-# csi playground
+# csi
 
 fun coding exercise
 
