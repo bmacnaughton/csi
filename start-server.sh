@@ -37,7 +37,16 @@ case $server in
 
   *)
     echo "start with defaults:"
-    echo "  ./start-server.sh"
+    echo ""
+    echo "  ./start-server.sh koa-app"
+    echo "   defaults: APP_PORT=3000 APP_BE_IP=localhost:4000/api"
+    echo ""
+    echo "   ./start-server.sh csi-server"
+    echo "    defaults: CSI_PORT=4000"
+    echo ""
+    echo "override defaults or supply additional options via environment variables,"
+    echo "e.g. APP_LOG_FILE=logfile.text APP_BE_IP= ./start-server.sh koa-app to"
+    echo "suppress sending data to a backend server but add output to a log file."
   ;;
 
 esac

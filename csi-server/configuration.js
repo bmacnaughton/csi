@@ -26,7 +26,6 @@ async function get (options = {}) {
   const configOptions = {
     enabled: {location: 'b', alias: 'active', type: 'b', default: true},
     port: {location: 'b', type: 'i', alias: 'p', default: 4000},
-    logFile: {location: 'b', type: 's'},
     logItems: {location: 'e', type: 's', ignore: true},     // debug logger settings
     verbose: {location: 'b', alias: 'v', type: 'b', default: false},
     commandLineOnly: {location: 'c', alias: 'clo', type: 'b', default: false},

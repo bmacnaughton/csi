@@ -46,18 +46,14 @@ async function main () {
   }
 
   //
-  // status updates are out of the way, start the program.
+  // now that configuration errors, warnings, etc. are done load csi
+  // if configured.
   //
 
-  let getCounts;
   let log;
   if (options.enabled) {
     const csi = require('../csi/csi');
     csi.patcher.enable();
-    getCounts = function () {
-      const o = {stringCount: csi.getStringCounts()};
-      return Object.assign(o, csi.patcher.getCounts());
-    }
     log = csi.log;
 
     // set where the metrics are recorded so they'll be ready when
@@ -69,24 +65,6 @@ async function main () {
       output: options.output ? console.log : null,
       logFile: logFile
     });
-  } else {
-    getCounts = function () {
-      const o = {};
-      return o;
-    }
-    log = new Proxy ({}, {
-      get (obj, prop) {
-        /* eslint-disable no-console */
-        if (prop === 'error') {
-          return console.error;
-        } else if (prop === 'warn') {
-          return console.warn;
-        } else {
-          return console.log;
-        }
-        /* eslint-enable no-console */
-      }
-    });
   }
 
   //
@@ -94,9 +72,10 @@ async function main () {
   //
   const koaapp = require('./koa-app.js');
 
-  // eslint-disable-next-line no-unused-vars
-  log.info(`starting app on localhost:${options.port}`);
-  const server = await koaapp.start({getCounts, port: options.port, log});
+  if (log) {
+    log.info(`starting app on localhost:${options.port}`);
+  }
+  const server = await koaapp.start({port: options.port});
 
   server.context.server = server;
 

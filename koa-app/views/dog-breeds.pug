@@ -9,8 +9,7 @@ block layout-content
         ul
           each val, key in breeds
             li
-              a(href='/dogs/raw/' + key) #{key + ' (' + val.join(', ') + ')'}
-                //if val.length
-                //  li= key + ' (' + val.join(', ') + ')'
-                //else
-                //  li= key
+              if val.length
+                a(href='/dogs/raw/' + key) #{key + ' (' + val.join(', ') + ')'}
+              else
+                a(href='/dogs/raw/' + key) #{key}

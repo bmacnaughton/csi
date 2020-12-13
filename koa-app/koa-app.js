@@ -43,13 +43,11 @@ async function start (options = {}) {
 
   const dogOptions = {
     router: dogRouter,
-    log: options.log || function () {},
   }
   require('./routes/dogs')(dogOptions);
 
   const homeOptions = {
     router: homeRouter,
-    log: options.log || function () {},
   }
   require('./routes/home')(homeOptions);
 
