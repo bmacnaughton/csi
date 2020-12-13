@@ -1,21 +1,27 @@
 {
-  "name": "contrast",
+  "name": "csi",
   "version": "1.0.0",
   "description": "",
   "main": "koa-app/app.js",
   "dependencies": {
+    "ace-context": "^1.0.1",
     "debug-custom": "^1.1.0",
     "glob": "^7.1.6",
     "koa": "^2.13.0",
+    "koa-bodyparser": "^4.3.0",
     "koa-logger": "^3.2.1",
+    "koa-pug": "^4.0.4",
     "koa-router": "^10.0.0",
     "minimist": "^1.2.5",
+    "pug": "^3.0.0",
     "shimmer": "^1.2.1",
     "superagent": "^6.1.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "chai": "^4.2.0"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha test"
   },
   "keywords": [],
   "author": "",

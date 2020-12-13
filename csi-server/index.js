@@ -2,11 +2,13 @@
 // get the configuration, issue messages if needed,
 // configure appropriately and kick off the server.
 //
-const configuration = require('./configuration.js');
+const configuration = require('./configuration');
+const {loggers: log} = require('./loggers');
+
 
 async function main () {
 
-  const config = await configuration.get({prefix: 'APP_'});
+  const config = await configuration.get({prefix: 'CSI_'});
   const {values: options} = config;
   if (options.commandLineOnly) {
     // eslint-disable-next-line no-console
@@ -46,57 +48,14 @@ async function main () {
   }
 
   //
-  // status updates are out of the way, start the program.
+  // status updates are out of the way, get and start the server.
   //
 
-  let getCounts;
-  let log;
-  if (options.enabled) {
-    const csi = require('../csi/csi');
-    csi.patcher.enable();
-    getCounts = function () {
-      const o = {stringCount: csi.getStringCounts()};
-      return Object.assign(o, csi.patcher.getCounts());
-    }
-    log = csi.log;
-
-    // set where the metrics are recorded so they'll be ready when
-    // the app is started.
-    const {beIp, logFile} = options;
-    await csi.recorder.setOptions({
-      endpoint: beIp,
-      // eslint-disable-next-line no-console
-      output: options.output ? console.log : null,
-      logFile: logFile
-    });
-  } else {
-    getCounts = function () {
-      const o = {};
-      return o;
-    }
-    log = new Proxy ({}, {
-      get (obj, prop) {
-        /* eslint-disable no-console */
-        if (prop === 'error') {
-          return console.error;
-        } else if (prop === 'warn') {
-          return console.warn;
-        } else {
-          return console.log;
-        }
-        /* eslint-enable no-console */
-      }
-    });
-  }
-
-  //
-  // get and start the app
-  //
-  const koaapp = require('./koa-app.js');
+  const csiServer = require('./csi-server.js');
 
   // eslint-disable-next-line no-unused-vars
   log.info(`starting app on localhost:${options.port}`);
-  const server = await koaapp.start({getCounts, port: options.port, log});
+  const server = await csiServer.start({port: options.port, log});
 
   server.context.server = server;
 

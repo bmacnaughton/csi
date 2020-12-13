@@ -25,14 +25,13 @@ const minimist = require('minimist');
 async function get (options = {}) {
   const configOptions = {
     enabled: {location: 'b', alias: 'active', type: 'b', default: true},
-    port: {location: 'b', type: 'i', alias: 'p', default: 3000},
-    beIp: {location: 'b', type: 's'},
-    verbose: {location: 'b', alias: 'v', type: 'b', default: false},
-    output: {location: 'b', type: 'b', default: false},
+    port: {location: 'b', type: 'i', alias: 'p', default: 4000},
     logFile: {location: 'b', type: 's'},
-    logItems: {location: 'e', type: 's', ignore: true},
+    logItems: {location: 'e', type: 's', ignore: true},     // debug logger settings
+    verbose: {location: 'b', alias: 'v', type: 'b', default: false},
     commandLineOnly: {location: 'c', alias: 'clo', type: 'b', default: false},
   };
+
   const prefix = options.prefix || '';
 
   // what get returns.
@@ -74,7 +73,6 @@ async function get (options = {}) {
       configOptions[k].default = options.defaults[k];
     }
   }
-
 
   const envInfo = await setConfigDefaultsFromEnv(configOptions, prefix);
   copyInfo(envInfo);

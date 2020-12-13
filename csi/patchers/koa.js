@@ -1,9 +1,10 @@
-'use strict'
+//
+// patch the koa object to capture metrics
+//
 
 const shimmer = require('shimmer');
 
-const record = require('../recorder.js').record;
-const getStringCount = require('../string-counter');
+const {context, recorder, getMetrics} = require('../csi');
 const debug = require('../debug.js');
 const log = {
   patch: debug.make('patch'),
@@ -12,11 +13,9 @@ const log = {
 };
 
 module.exports = koa => {
-  // allow the caller to invoke this with or without "new" by
-  // not using an arrow function.
   return function (settings) {
     const app = new koa(settings);
-    log.info('think i am wrapping');
+    log.koa('wrapping app');
     wrapApp(app);
     return app;
   }
@@ -32,39 +31,44 @@ function wrapApp (app) {
     return function () {
       const handle = callback.call(this);
       return function (req, res) {
-        const cc = {startTime: Date.now(), startStringObjectCount: getStringCount()};
-        log.koa('got request');
+        log.koa('contextualizing request');
+        // create a context, wrap end(), bind the emitters,
+        // and invoke the user's koa handler
+        context.run(() => {
+          context.init();
+          const startMetrics = getMetrics();
+          if (wrapEnd(startMetrics, res)) {
+            res.end = context.bind(res.end);
+          }
 
-        // Create and enter koa transaction
-        log.koa('wrapping end()');
-        wrapEnd(cc, res);
+          context.bindEmitter(req);
+          context.bindEmitter(res);
 
-        // Run real handler
-        log.koa('executing handler');
-        return handle.call(this, req, res);
+          // Run real handler
+          log.koa('executing handler');
+          return handle.call(this, req, res);
+        }, {newContext: true});
+
       }
     }
   })
 }
 
-// Exit koa span and response write
-function wrapEnd (cc, res) {
-  if (!res.end) {
+// on response.end() exit
+function wrapEnd (startMetrics, res) {
+  if (!res.end || typeof res.end !== 'function') {
     log.patch('koa missing res.end()');
-    return;
+    return false;
   }
   shimmer.wrap(res, 'end', realEnd => {
     return function () {
-      const sc = getStringCount();
-      const data = {
-        et: Date.now() - cc.startTime,
-        incrementalStringCount: sc - cc.startStringObjectCount,
-        totalStringCount: sc,
-      };
-      record(data)
+      const endMetrics = getMetrics(startMetrics);
+
+      log.koa('calling recorder.record()')
+      recorder.record(endMetrics)
         .then(unique => {
           if (unique) {
-            this.setHeader('x-contrast-id', unique);
+            this.setHeader('x-csi-id', unique);
           }
           return realEnd.apply(this, arguments);
         });
@@ -80,6 +84,7 @@ function wrapEnd (cc, res) {
       // this should work fine as the output stream may not have
       // finished before end() returns.
       return this;
-    }
-  })
+    };
+  });
+  return true;
 }

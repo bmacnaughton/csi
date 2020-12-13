@@ -1,12 +1,14 @@
-'use strict'
-
+//
+// patch the require function to enable patching modules as they are loaded.
+//
 const Module = require('module');
 const glob = require('glob');
 const path = require('path');
 
 const debug = require('./debug.js');
 const log = {
-  patch: debug.make('patch')
+  error: debug.make('error'),
+  patch: debug.make('patch'),
 };
 
 const counts = {
@@ -23,18 +25,19 @@ const counts = {
     unpatched: new Map(),
   },
   errors: new Map(),
-}
+};
 
+// wrap the native require function to count unpatched modules loaded.
 const nativeRequire = module.constructor.prototype.require;
 const realRequire = function (name) {
   counts.unpatched += 1;
   return nativeRequire.call(this, name);
 }
 module.constructor.prototype.require = realRequire;
+
+
 const patchers = new Map();
 const patched = new WeakMap();
-
-
 
 exports = module.exports = {
   // Set locations of instrumentation wrappers to patch named modules
@@ -60,7 +63,7 @@ exports = module.exports = {
   //
   getCounts () {
     const o = {errors: counts.errors.size};
-    ['builtin', 'installed'].forEach(type => {
+    ['builtin', 'installed', 'relative'].forEach(type => {
       o[type] = {
         patched: counts[type].patched.size,
         unpatched: counts[type].unpatched.size,
@@ -68,17 +71,19 @@ exports = module.exports = {
         unpatchedItems: [...counts[type].unpatched.entries()],
       };
     });
+
     return o;
   }
 }
 
 function add (map, name, n = 1) {
-  let m = map.get(name);
+  const m = map.get(name);
   if (!m) {
     map.set(name, 1);
   } else {
     map.set(name, m + 1);
   }
+  counts.seq += 1;
 }
 
 //
@@ -91,12 +96,9 @@ function requireAndPatch (name) {
     return mod;
   }
 
-  let builtin = false;
-
   let counters;
-  // is it a builtin module?
+  // determine what is being counted
   if (Module.builtinModules.indexOf(name) >= 0) {
-    builtin = true;
     counters = counts.builtin;
   } else if (name[0] === '.' || name[0] === '/') {
     counters = counts.relative;
@@ -118,13 +120,6 @@ function requireAndPatch (name) {
     // require the patcher with the real module as the first argument.
     mod = nativeRequire(patchers.get(name).path)(mod, options);
 
-    // allow patchers to return the version patched for logging. in order to
-    // return the version they should return [patched-module, version-info-string].
-    if (Array.isArray(mod)) {
-      v = mod[1];
-      mod = mod[0];
-    }
-
     // Mark this module patched
     patched.set(mod, true);
 
@@ -134,7 +129,10 @@ function requireAndPatch (name) {
     }
 
     log.patch(`patched ${name}`);
-    add(counters.patched, name);
+    add(counters.patched, path);
+  } else {
+    const path = Module._resolveFilename(name, this);
+    add(counters.unpatched, path);
   }
 
   return mod;
@@ -144,20 +142,20 @@ function requireAndPatch (name) {
 //
 // Build a list of all modules we have patchers for
 //
-let probeFiles;
+let patchFiles;
 try {
-  probeFiles = glob.sync('*.js', {
-    cwd: path.join(__dirname, 'packages')
+  patchFiles = glob.sync('*.js', {
+    cwd: path.join(__dirname, 'patchers')
   })
 } catch (e) {
-  ao.loggers.error('failed to load available patchers', e.message);
+  log.error('failed to load available patchers', e.message);
 }
 
-probeFiles.forEach(file => {
+patchFiles.forEach(file => {
   const m = file.match(/^(.*)+\.js$/);
   if (m && m.length == 2) {
     const name = m[1];
-    exports.register(name, path.join(__dirname, 'packages', name));
+    exports.register(name, path.join(__dirname, 'patchers', name));
     log.patch(`found ${name} probe`);
   }
 });

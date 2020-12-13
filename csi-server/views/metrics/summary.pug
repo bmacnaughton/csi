@@ -1,0 +1,9 @@
+extends ../layout
+
+block layout-content
+  div.View
+    h1.Banner Metrics
+    div.Message
+      div.Title
+        h3 #{title}
+        p #{JSON.stringify(summary)}
