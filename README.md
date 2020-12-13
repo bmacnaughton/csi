@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/bmacnaughton/csi.svg?branch=master)](https://travis-ci.com/bmacnaughton/csi.svg?branch=master)
+
 # csi
 
 fun coding exercise
