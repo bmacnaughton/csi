@@ -1,4 +1,4 @@
-# csi challenge
+# csi playground
 
 fun coding exercise
 
@@ -7,7 +7,7 @@ fun coding exercise
 rebuilding v8 from source; my take is that's out of scope (and i want to define the task in a way that's
 solvable for me). but maybe i just don't know how to find out how many strings have been created.
 - specifically says "String objects" but I am including the results of `String(8)` in addition to `new String(8)`.
-if not it's a one-line change in csi-server/metrics-store#getSummary().
+if not it's a one-line change in `csi-server/metrics-store#getSummary()`.
 - keeping track of required files for each request makes sense to see but having a list of required files
 makes sense to. the program does not track required modules on a per-request basis but does report any
 changes in required files that take place over the lifetime of a request. it could also send the entire list
@@ -17,7 +17,7 @@ be rather large. it doesn't do that at this time.
 # mea culpa
 - i'm not a ui guy; i prefer command lines. the barely functional presentation of web pages in this
 exercise is proof.
-- koa-app/index.js could be better segmented to be a pure csi command line tool to run apps. it's mix of
+- `koa-app/index.js` could be better segmented to be a pure csi command line tool to run apps. it's mix of
 app and instrumentation startup now.
 - it would be good to capture the path with each record. this would allow grouping by path for potentially
 more relevant comparisons. this is not implemented.
