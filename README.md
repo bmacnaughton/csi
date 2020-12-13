@@ -24,6 +24,7 @@ app and instrumentation startup now.
 - it would be good to capture the path with each record. this would allow grouping by path for potentially
 more relevant comparisons. this is not implemented.
 - there is no abstraction, not even a version, for the record sent from the `csi` package to the `csi-server`.
+- it doesn't patch when `import` (ecmascript modules) is used instead of `require`.
 
 ## overview
 
