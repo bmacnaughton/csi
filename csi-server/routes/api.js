@@ -27,4 +27,11 @@ module.exports = ({router, metrics}) => {
     await metrics.report(ctx.request.body);
     ctx.body = {status: 'OK', metrics: ctx.request.body};
   });
+
+  router.get('/requires/all', async ctx => {
+    ctx.body = metrics.getAllRequires();
+  });
+  router.get('/requires/time/:time', async ctx => {
+    ctx.body = metrics.getRequires(ctx.params.time);
+  });
 };

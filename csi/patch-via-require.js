@@ -63,7 +63,7 @@ exports = module.exports = {
   // counters
   //
   getCounts () {
-    const o = {errors: counts.errors.size};
+    const o = {seq: counts.seq, errors: counts.errors.size};
     ['builtin', 'installed', 'relative'].forEach(type => {
       o[type] = {
         patched: counts[type].patched.size,

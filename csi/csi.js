@@ -26,6 +26,29 @@ context.init = function () {
 // make the context-aware string counter.
 const sc = new StringCounter({context, log});
 
+// and start counting strings
+sc.setStringToCounted();
+
+// send patch details once a minute if they change. the number of patched files
+// can be large so don't send the detailed information on every request - required
+// files are not request-specific in most situations.
+let lastSeq = -1;
+const iid = setInterval(sendRequires, 10 * 1000);  // eslint-disable-line no-unused-vars
+
+function sendRequires () {
+  const requires = patcher.getCounts();
+  if (requires.seq > lastSeq) {
+    log.debug(`requires interval popped seq: ${requires.seq} lastSeq: ${lastSeq}`);
+
+    recorder.recordRequires(requires)
+      .then(() => lastSeq = requires.seq)
+      .catch(e => log.error(e.message));
+  }
+}
+
+//
+// metrics for getMetrics()
+//
 class Metrics {
   constructor () {
     this.startTime = Date.now();
@@ -34,9 +57,9 @@ class Metrics {
   }
 }
 
-// start counting strings
-sc.setStringToCounted();
-
+//
+// function to get metrics or calculate delta metrics.
+//
 Metrics.getMetrics = function (startMetrics) {
   if (!startMetrics) {
     return new Metrics();

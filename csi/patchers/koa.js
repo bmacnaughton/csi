@@ -65,7 +65,7 @@ function wrapEnd (startMetrics, res) {
       const endMetrics = getMetrics(startMetrics);
 
       log.koa('calling recorder.record()')
-      recorder.record(endMetrics)
+      recorder.recordRequest(endMetrics)
         .then(unique => {
           if (unique) {
             this.setHeader('x-csi-id', unique);

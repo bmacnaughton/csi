@@ -5,19 +5,33 @@
 // getSummary - calculate summary of metrics and return them
 // get - fetch metrics for a specific ID
 //
-const db = new Map();
+const requestsDB = new Map();
+const requiresDB = new Map();
 
 module.exports = {
   report (data) {
-    if (!data.id) {
-      const e = new Error('invalid metrics format');
+    if (data.type === 'request') {
+      if (!data.id) {
+        const e = new Error('invalid request metrics format');
+        e.status = 422;
+        throw e;
+      }
+      requestsDB.set(data.id, data.metrics);
+    } else if (data.type === 'requires') {
+      if (!data.time) {
+        const e = new Error('invalid requires metrics format');
+        e.status = 422;
+        throw e;
+      }
+      requiresDB.set(data.time, data.requires);
+    } else {
+      const e = new Error(`invalid type: ${data.type}`);
       e.status = 422;
       throw e;
     }
-    db.set(data.id, data.metrics);
   },
   getSummary () {
-    if (!db.size) {
+    if (!requestsDB.size) {
       return {};
     }
     // return object
@@ -66,7 +80,7 @@ module.exports = {
     let n = 0;
     let totMs = 0;
     let totStrCalls = 0;
-    for (const v of db.values()) {
+    for (const v of requestsDB.values()) {
       if (v.et < o.minMs) o.minMs = v.et;
       if (v.et > o.maxMs) o.maxMs = v.et;
 
@@ -95,19 +109,37 @@ module.exports = {
 
     return o;
   },
+
   getAll () {
     const o = {};
-    for (const [k, i] of db) {
+    for (const [k, i] of requestsDB) {
       o[k] = i;
     }
     return o;
   },
   get (id) {
-    if (!db.has(id)) {
+    if (!requestsDB.has(id)) {
       const e = new Error('id not found');
       e.status = 404;
       throw e;
     }
-    return db.get(id);
+    return requestsDB.get(id);
+  },
+
+  getAllRequires () {
+    const o = {};
+    for (const [k, i] of requiresDB) {
+      o[k] = i;
+    }
+    return o;
+  },
+  getRequires (time) {
+    time = Number(time);
+    if (!requiresDB.has(time)) {
+      const e = new Error('id not found');
+      e.status = 404;
+      throw e;
+    }
+    return requiresDB.get(time);
   },
 }
