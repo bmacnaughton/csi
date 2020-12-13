@@ -115,7 +115,7 @@ when `csi/csi.js` is required it initializes itself and returns an api to the us
   - metrics - the backend server portion of the app
 
 - test/ - unit tests
-- start-server.sh - script to facilitate starting a demo
+- start-server.sh - script to facilitate starting the two servers
 
 ## testing
 
