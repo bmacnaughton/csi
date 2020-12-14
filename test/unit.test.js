@@ -1,5 +1,7 @@
 const expect = require('chai').expect;
 
+process.env.CSI_LOG_ITEMS = 'error,warn,patch';
+
 const {patcher, context, getMetrics, resetString, clearIntervalSender} = require('../csi/csi');
 
 describe('unit tests', function () {

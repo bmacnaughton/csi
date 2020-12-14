@@ -1,5 +1,5 @@
 //
-// implement the simple web app. it displays dog breeds.
+// implement the simple koa app. it displays dog breeds.
 //
 
 async function start (options = {}) {

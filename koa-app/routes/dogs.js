@@ -1,3 +1,7 @@
+//
+// display dog pages
+//
+
 const request = require('superagent');
 
 module.exports = ({router}) => {

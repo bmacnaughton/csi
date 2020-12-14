@@ -6,7 +6,6 @@ const ace = require('ace-context');
 const patcher = require('./patch-via-require');
 const recorder = require('./recorder');
 const StringCounter = require('./string-counter');
-// /const {setStringToCounted, getStringCounts} = require('./string-counter');
 const debug = require('./debug');
 
 const log = {
@@ -29,9 +28,10 @@ const sc = new StringCounter({context, log});
 // and start counting strings
 sc.setStringToCounted();
 
-// send patch details once a minute if they change. the number of patched files
+// send patch details (if they change) on an interval. the number of patched files
 // can be large so don't send the detailed information on every request - required
-// files are not request-specific in most situations.
+// files are not request-specific in most situations. if there is an error sending
+// don't increment the seq so it will be retried.
 let lastSeq = -1;
 let iid = setInterval(sendRequires, 10 * 1000);
 
@@ -41,7 +41,15 @@ function sendRequires () {
     log.debug(`requires interval popped seq: ${requires.seq} lastSeq: ${lastSeq}`);
 
     recorder.recordRequires(requires)
-      .then(() => lastSeq = requires.seq)
+      .then(r => {
+        // if the send was successful update the sequence
+        if (!(r instanceof Error)) {
+          log.info(r);
+          lastSeq = requires.seq;
+        } else {
+          log.error(r.message);
+        }
+      })
       .catch(e => log.error(e.message));
   }
 }
@@ -111,5 +119,6 @@ module.exports = {
   getMetrics: Metrics.getMetrics,
   resetString: StringCounter.resetString,
   log,
+  debug,
   clearIntervalSender,
 };

@@ -1,7 +1,5 @@
 //
-// implement the simple web app. it's really two in one - one displays
-// a list of dog breeds while the other accumulates metrics and displays
-// them on request.
+// implement a simple api to store and fetch metrics.
 //
 
 const metrics = require('./metrics-store');

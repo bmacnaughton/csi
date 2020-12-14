@@ -25,25 +25,30 @@ module.exports = {
       output(JSON.stringify(data));
     }
 
-    const promises = [];
+    let promise;
     if (endpoint) {
-      const res = request
+      promise = request
         .post(endpoint)
         .send(data)
         .set('content-type', 'application/json')
         .set('accept', 'application/json')
         .then(res => {
-          return res;
+          if (res.status !== 'OK') {
+            return new Error(`server status: ${res.status}`);
+          }
+          return id;
         })
         .catch(e => e);
-      promises.push(res);
+    } else {
+      // if there is no endpoint just return an invalid id.
+      promise = Promise.resolve('no-id');
     }
     if (file) {
       file.write(`${new Date().toISOString()} ${JSON.stringify(data)}\n`);
     }
 
-    // don't care if the writes fail; just return the id.
-    return Promise.all(promises).then(results => id);
+    // return an error or the id.
+    return promise;
   },
 
   //
@@ -60,24 +65,40 @@ module.exports = {
       output(stringified);
     }
 
-    const promises = [];
+    let promise;
     if (endpoint) {
-      const res = request
+      promise = request
         .post(endpoint)
         .send(data)
         .set('content-type', 'application/json')
         .set('accept', 'application/json')
         .then(res => {
-          return res;
+          if (res.status !== 200) {
+            return new Error(`server status: ${res.status}`);
+          }
+          let message;
+          if (!res.body) {
+            message = 'missing response body';
+          } else if (res.body.status !== 'OK') {
+            message = `api status: ${res.body.status}`;
+          } else {
+            return time;
+          }
+
+          return new Error(message);
         })
         .catch(e => e);
-      promises.push(res);
+    } else {
+      // if no endpoint return an invalid time value.
+      promise = Promise.resolve(-1);
     }
+
     if (file) {
       file.write(`${new Date().toISOString()} ${stringified || JSON.stringify(data)}\n`);
     }
 
-    return Promise.all(promises).then(results => time);
+    // return the time or an error, eventually.
+    return promise;
   },
 
   //

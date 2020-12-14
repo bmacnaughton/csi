@@ -2,7 +2,7 @@
 
 #
 # provides defaults for key options. Others can be used added with env vars.
-# see the server's configuration.js files.
+# see the readme or the server's configuration.js files for details.
 #
 
 server=$1
@@ -16,10 +16,10 @@ case $server in
     [ -n "$APP_BE_IP" ] && be_text=" (backend $APP_BE_IP)"
 
     if [ -z "$pretend" ]; then
-      echo "starting website at localhost:${APP_PORT}${be_text}"
+      echo "starting koa-app at localhost:${APP_PORT}${be_text}"
       APP_PORT=$APP_PORT APP_BE_IP=$APP_BE_IP node koa-app/index.js
     else
-      echo "pretending to start site at localhost:${APP_PORT}${be_text}"
+      echo "pretending to start koa-app at localhost:${APP_PORT}${be_text}"
     fi
   ;;
 
@@ -28,10 +28,10 @@ case $server in
     x=${CSI_PORT=4000}
 
     if [ -z "$pretend" ]; then
-      echo "starting backend at localhost:${CSI_PORT}"
+      echo "starting csi-server at localhost:${CSI_PORT}"
       CSI_PORT=$CSI_PORT node csi-server/index.js
     else
-      echo "pretending to start backend at localhost:${CSI_PORT}"
+      echo "pretending to start csi-server at localhost:${CSI_PORT}"
     fi
   ;;
 

@@ -49,7 +49,6 @@ async function main () {
   // now that configuration errors, warnings, etc. are done load csi
   // if configured.
   //
-
   let log;
   if (options.enabled) {
     const csi = require('../csi/csi');

@@ -1,3 +1,7 @@
+//
+// render a basic home page and implement the exit command
+//
+
 module.exports = ({router}) => {
   router.get('/', async ctx => {
     return ctx.body = ctx.render('index', {title: 'CSI', banner: 'hello, bruce'});

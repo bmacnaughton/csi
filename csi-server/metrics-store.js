@@ -2,13 +2,15 @@
 // handle metrics reported.
 //
 // report - add a new set of metrics to the store
-// getSummary - calculate summary of metrics and return them
-// get - fetch metrics for a specific ID
+//
+// additional function to get string metrics, require metrics, and
+// to summarize all the stored string metrics.
 //
 const requestsDB = new Map();
 const requiresDB = new Map();
 
 module.exports = {
+  // report()
   report (data) {
     if (data.type === 'request') {
       if (!data.id) {
@@ -30,6 +32,7 @@ module.exports = {
       throw e;
     }
   },
+  // getSummary()
   getSummary () {
     if (!requestsDB.size) {
       return {};

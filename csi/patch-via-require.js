@@ -1,5 +1,6 @@
 //
-// patch the require function to enable patching modules as they are loaded.
+// patch the require function to enable patching modules as they are loaded. record
+// files required.
 //
 const Module = require('module');
 const glob = require('glob');
@@ -11,6 +12,7 @@ const log = {
   patch: debug.make('patch'),
 };
 
+// builtins, installed packages, and relative requires are recorded separately.
 const counts = {
   builtin: {
     patched: new Map(),
@@ -107,8 +109,7 @@ function requireAndPatch (name) {
     counters = counts.installed;
   }
 
-  // if no patcher for the package just count it. don't
-  // use the pat
+  // if no patcher for the package just count it.
   if (!patchers.get(name)) {
     add(counters.unpatched, name);
     return mod;

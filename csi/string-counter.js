@@ -1,5 +1,6 @@
 //
-// replace String with a version that counts the invocations
+// replace String with a version that counts the invocations in a specific
+// async context.
 //
 const rString = global.String;
 

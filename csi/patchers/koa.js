@@ -4,12 +4,10 @@
 
 const shimmer = require('shimmer');
 
-const {context, recorder, getMetrics} = require('../csi');
-const debug = require('../debug.js');
+const {context, recorder, getMetrics, debug} = require('../csi');
 const log = {
   patch: debug.make('patch'),
   koa: debug.make('koa'),
-  info: debug.make('info'),
 };
 
 module.exports = koa => {
@@ -81,8 +79,7 @@ function wrapEnd (startMetrics, res) {
       // are to have the send/write fire and forget or, if the user
       // supplied a callback, then the callback could be wrapped and
       // only invoked after record() completes. but in general
-      // this should work fine as the output stream may not have
-      // finished before end() returns.
+      // this should work fine.
       return this;
     };
   });

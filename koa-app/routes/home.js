@@ -1,3 +1,7 @@
+//
+// simple home page and exit command
+//
+
 module.exports = ({router}) => {
   // the vanilla route
   router.get('/', async ctx => {
